@@ -1,0 +1,145 @@
+{
+  "name": "@tufan/node-starter",
+  "version": "1.0.0",
+  "description": "A starter package for typescript projects",
+  "keywords": [
+    "TypeScript",
+    "starter",
+    "node",
+    "boilerplate",
+    "ava",
+    "nyc"
+  ],
+  "author": "tufan.io",
+  "repository": "github:tufan-io/node-starter",
+  "license": "Apache-2.0",
+  "private": false,
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "docs",
+    "scripts"
+  ],
+  "scripts": {
+    "preinstall": "node ./.reinit",
+    "commit": "git-cz",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "todos": "leasot --exit-nicely --skip-unsupported ./src ./config",
+    "staged-mods-ok": "git-mods --staged_ok",
+    "no-mods": "git-mods",
+    "clean": "rimraf build .nyc_output coverage",
+    "clean:dist": "rimraf dist",
+    "lint": "tslint -c tslint.json --project ./tsconfig.json --format stylish",
+    "compile:build": "tsc",
+    "compile:dist": "tsc -p tsconfig.dist.json",
+    "compile:watch": "tsc -w",
+    "sh": "npm-sh",
+    "secure": "npm audit",
+    "check": "npm outdated",
+    "check-coverage": "nyc check-coverage --lines 95 --functions 95 --branches 95 --statements 95",
+    "coveralls-report": "nyc report --reporter=text-lcov | coveralls",
+    "nyc-report": "nyc report --reporter=text-summary",
+    "test-with-cover": "cross-env NODE_ENV=test nyc -r html -r lcov -r text-summary ava --verbose",
+    "test-without-cover": "cross-env NODE_ENV=test ava --verbose",
+    "build": "npm-run-batch",
+    "qt": "npm-run-batch",
+    "build:watch": "cross-env NODE_ENV=production run-batch",
+    "pkg-ok": "pkg-ok",
+    "pre-commit-hook": "run-batch",
+    "pre-push-hook": "run-batch",
+    "snapshots": "cross-env NODE_ENV=test ava --verbose --update-snapshots",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "cloc": "cloc --exclude-dir=test --by-file ./src"
+  },
+  "run-batch": {
+    "build": [
+      "lint",
+      [
+        "clean",
+        "clean:dist"
+      ],
+      "compile:build",
+      [
+        "test-with-cover",
+        "compile:dist"
+      ],
+      "todos"
+    ],
+    "qt": [
+      "compile:build",
+      "test-without-cover"
+    ],
+    "build:watch": [
+      "compile:watch"
+    ],
+    "pre-commit-hook": [
+      "check-coverage",
+      "pkg-ok",
+      "staged-mods-ok"
+    ],
+    "pre-push-hook": [
+      "secure",
+      "no-mods"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.3",
+    "ava": "^0.25.0",
+    "commitizen": "^3.0.4",
+    "conventional-changelog-cli": "^2.0.11",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.1.3",
+    "cz-conventional-changelog": "^2.1.0",
+    "git-mods": "^1.0.7",
+    "graceful-fs": "^4.1.11",
+    "husky": "^1.1.3",
+    "leasot": "^6.6.2",
+    "mkdirp": "^0.5.1",
+    "node-emoji": "^1.5.1",
+    "npm-run-batch": "0.0.8",
+    "nyc": "^13.1.0",
+    "parse-git-config": "^2.0.3",
+    "pkg-ok": "^2.3.1",
+    "rimraf": "^2.6.1",
+    "semantic-release": "^15.10.8",
+    "tslint": "^5.8.0",
+    "tslint-config-security": "^1.12.0",
+    "tslint-sonarts": "^1.7.0",
+    "typescript": "^3.1.6",
+    "typestrict": "^1.0.1"
+  },
+  "dependencies": {},
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "ava": {
+    "serial": false,
+    "files": [
+      "build/**/test.js",
+      "build/**/test/**/*.js"
+    ],
+    "source": [
+      "build/**/*.js"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "config/**/*",
+      "build/**/test/**/*.*",
+      "build/**/test.js",
+      "dist"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pre-commit-hook",
+      "pre-push": "npm run pre-push-hook"
+    }
+  }
+}

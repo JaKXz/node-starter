@@ -1,0 +1,27 @@
+language: node_js
+cache:
+  directories:
+    - ~/.npm
+notifications:
+  email: false
+node_js:
+  - '10',
+  - '9'
+  - '8'
+before_script:
+  - npm prune
+before_install:
+  # we need npm version > 5.6.0 to not barf on cross-platform optional dependencies.
+  # For details, see https://github.com/npm/npm/pull/19054
+  - npm install npm@^5.6.0 -g
+script:
+  - npm run build
+  - npm run prepush
+    # get the coverage metrics to coveralls
+  - npm run coveralls-report
+after_success:
+  - npm run semantic-release
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
+
