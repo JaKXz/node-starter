@@ -22,12 +22,10 @@ const resetPackageJson = (ctx) => {
   fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2), 'utf8');
 }
 
-// Since this is a meta-script, it's not fair
-// to install dev-dependencies. We have simpler
-// local implementations of necessary npm modules,
-// allowing us to do the needful.
-// Post a first run, this file will be deleted from
-// the cloned repo.
+// Since this is a pre-install configuration script, meant to be run
+// one-time, it's not right to install dependencies into target repo.
+// We have simple local implementations of needed functionality.
+// This file self-deletes after successful execution.
 
 function sed(fname, match_re, replacement) {
   const content = fs.readFileSync(fname, 'utf8');
@@ -81,13 +79,25 @@ if (require.main !== module) {
   });
 
   // defaults
-  const app = path.basename(process.cwd());
-  let result = {};
+  let result = {
+    app: path.basename(process.cwd()),
+    githost: 'github',
+    org: 'tufan-io',
+  };
 
   return new Promise((resolve, reject) => {
-    rl.question(`Name of the project (${app}): `, (answer) => {
-      result.app = answer || app;
-      return resolve(result);
+    // Q1 ----
+    rl.question(`Name of the project (${result.app}): `, (answer) => {
+      result.app = answer || result.app;
+      // Q2 ----
+      rl.question(`Git provider (${result.githost}): `, (answer) =>{
+        result.githost = answer || result.githost;
+        // Q3 ----
+        rl.question(`Git organization (${result.org}): `, (answer) =>{
+          result.org = answer || result.org;
+          return resolve(result);
+        });
+      });
     });
   }).then((result) => {
     const re = {
