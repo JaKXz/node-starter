@@ -1,4 +1,5 @@
-build
+dist/**/*test.*
+dist/**/test/*
 
 # ignore temporary files
 .tmp*
